@@ -2,8 +2,15 @@ syntax = "proto3";
 
 package login;
 
+import "google/api/annotations.proto";
+
 service SignUp {
-    rpc SignUp (SignUpRequest) returns (SignUpResponse) {}
+    rpc SignUp (SignUpRequest) returns (SignUpResponse) {
+        option (google.api.http) = {
+            post: "/signup"
+            body: "*"
+        };
+    }
 }
 
 message SignUpRequest {
