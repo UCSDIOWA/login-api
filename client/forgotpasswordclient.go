@@ -22,7 +22,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	response, err := c.ForgotPassword(ctx, &pb.ForgotPasswordRequest{Email: "test@tea.com"})
+	response, err := c.ForgotPassword(ctx, &pb.ForgotPasswordRequest{Email: "mag030@ucsd.edu"})
 
 	log.Println("Success: "+strconv.FormatBool(response.Success))
 }

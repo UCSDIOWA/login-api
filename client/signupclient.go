@@ -21,7 +21,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	response, err := c.SignUp(ctx, &pb.SignUpRequest{Email: "test@tea.com", FirstName: "John",
+	response, err := c.SignUp(ctx, &pb.SignUpRequest{Email: "mag030@ucsd.edu", FirstName: "John",
                    LastName: "Smith", Secret: &pb.SignUpRequest_SecretCode{ Value: "12345", Sent: true } })
 
 	log.Println(response.Success)

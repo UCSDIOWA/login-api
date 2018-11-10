@@ -7,6 +7,8 @@ import (
   "math/rand"
   "strings"
   "time"
+  "net/smtp"
+  "crypto/tls"
 
 	pb "login-api/protos"
 	"github.com/globalsign/mgo"
@@ -16,6 +18,10 @@ import (
 
 type server struct{}
 
+//For sending emails
+type Mail struct {
+  From, Host, Port string
+}
 //Possible characters for code generator
 const chars =  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 
@@ -70,7 +76,8 @@ func (s *server) SignUp(ctx context.Context, signUpReq *pb.SignUpRequest) (*pb.S
   //Set pasword to blank password not expected in signUp
   signUpReq.Password = ""
   //Generate code for email confirmation
-  signUpReq.Secret.Value = RandCode(12)
+  code := RandCode(12)
+  signUpReq.Secret.Value = code
   signUpReq.Secret.Sent = true
   //Inserting
   err := DB.Operation.Insert(signUpReq)
@@ -78,9 +85,17 @@ func (s *server) SignUp(ctx context.Context, signUpReq *pb.SignUpRequest) (*pb.S
     return &pb.SignUpResponse{Success: false}, nil
   }
 
+  confirmMsg := "Subject: Email Confirmation Code \n\nPleasa enter the code "+
+               code + " to complete your registration.\n"
+  err = SendCode(signUpReq.Email, confirmMsg)
+  if err != nil {
+    return &pb.SignUpResponse{Success: false}, nil
+  }
 	return &pb.SignUpResponse{Success: true}, nil
 }
 
+
+//At some point will prevent blank passwords from working. Leaving as is for testing
 
 /* Function Name: Login
  * Description: Verefies if the user from the login request is in the database.
@@ -130,6 +145,9 @@ func (s *server) ForgotPassword(ctx context.Context, forgotPassReq *pb.ForgotPas
   if err != nil {
     return &pb.ForgotPasswordResponse{ Success: false }, nil
   }
+  forgotMsg := "Subject: Pasword Reset Code \n\nPlease use the code " +
+               code + " to reset your account password.\n"
+  SendCode( forgotPassReq.Email, forgotMsg )
   return &pb.ForgotPasswordResponse{Success: true}, nil
 }
 
@@ -144,4 +162,81 @@ func RandCode( length int ) string {
     code[i] = chars[rand.Intn(len(chars))]
   }
   return string(code)
+}
+
+
+/* Function Name: SendCode
+ * Description: Sends an email containing the generated code.
+ */
+func SendCode( email string, message string ) error {
+
+  info := Mail{
+    "tea.noreply@gmail.com",
+    "smtp.gmail.com",
+    "465",
+  }
+
+  auth := smtp.PlainAuth(
+    "",
+    info.From,
+    "cse110IOWA",
+    info.Host)
+
+  conn, err := tls.Dial(
+    "tcp",
+    info.Host + ":" + info.Port,
+    &tls.Config {
+      InsecureSkipVerify: true,
+      ServerName: info.Host, })
+
+  if err!= nil {
+    log.Panic( err )
+    return err
+  }
+
+  client, err := smtp.NewClient(conn, info.Host)
+  if err != nil {
+    log.Panic(err)
+    return err
+  }
+
+  err = client.Auth(auth)
+  if err != nil {
+    log.Panic(err)
+  }
+
+  err = client.Mail(info.From)
+  if err != nil {
+    log.Panic(err)
+    return err
+  }
+
+  err = client.Rcpt( email )
+  if err != nil {
+    log.Panic(err)
+    return err
+  }
+
+  w, err := client.Data()
+  if err != nil {
+    log.Panic(err)
+    return err
+  }
+  msg := "From: " + info.From +"\n" +
+         "To: " + email + "\n" +
+         message
+  _, err = w.Write( []byte(msg) )
+  if err != nil {
+    log.Panic(err)
+    return err
+  }
+
+  err = w.Close()
+  if err != nil {
+    log.Panic(err)
+  }
+
+  client.Quit()
+  log.Println("Mail sent successfully")
+  return nil
 }
