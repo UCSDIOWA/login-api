@@ -13,11 +13,54 @@ service SignUp {
     }
 }
 
+service LogIn {
+	rpc LogIn (LogInRequest) returns (LogInResponse) {
+		option (google.api.http) = {
+			post: "/login"
+			body: "*"
+		};
+	}
+}
+
+service ForgotPassword {
+  rpc ForgotPassword ( ForgotPasswordRequest) returns (ForgotPasswordResponse) {
+    option (google.api.http) = {
+      post: '/forgotpassword'
+      body: "*"
+    };
+  }
+}
+
 message SignUpRequest {
-    string email = 1;
-    string password = 2;
+  string email = 1;
+  string password = 2;
+  string first_name = 3;
+  string last_name = 4;
+
+  message SecretCode {
+    string value = 1;
+	  bool sent = 2;
+  }
+  SecretCode secret = 5;
 }
 
 message SignUpResponse {
-    bool success = 1;
+  bool success = 1;
+}
+
+message LogInRequest {
+	string email = 1;
+	string password = 2;
+}
+
+message LogInResponse {
+	SignUpRequest user = 1;
+}
+
+message ForgotPasswordRequest {
+  string email = 1;
+}
+
+message ForgotPasswordResponse {
+  bool success = 1;
 }

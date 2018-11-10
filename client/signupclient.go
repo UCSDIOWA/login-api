@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/UCSDIOWA/login-api/protos"
+	pb "login-api/protos"
 	"google.golang.org/grpc"
 )
 
@@ -21,7 +21,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	response, err := c.SignUp(ctx, &pb.SignUpRequest{Email: "test@tea.com", Password: "test"})
+	response, err := c.SignUp(ctx, &pb.SignUpRequest{Email: "test@tea.com", FirstName: "John",
+                   LastName: "Smith", Secret: &pb.SignUpRequest_SecretCode{ Value: "12345", Sent: true } })
 
-	log.Println(response.String())
+	log.Println(response.Success)
 }
