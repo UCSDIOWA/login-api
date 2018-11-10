@@ -4,28 +4,24 @@ package login;
 
 import "google/api/annotations.proto";
 
-service SignUp {
-    rpc SignUp (SignUpRequest) returns (SignUpResponse) {
-        option (google.api.http) = {
-            post: "/signup"
-            body: "*"
-        };
-    }
-}
+service LoginAPI {
+  rpc SignUp (SignUpRequest) returns (SignUpResponse) {
+      option (google.api.http) = {
+          post: "/signup"
+          body: "*"
+      };
+  }
 
-service LogIn {
-	rpc LogIn (LogInRequest) returns (LogInResponse) {
-		option (google.api.http) = {
-			post: "/login"
-			body: "*"
-		};
-	}
-}
+  rpc LogIn (LogInRequest) returns (LogInResponse) {
+    option (google.api.http) = {
+      post: "/login"
+      body: "*"
+    };
+  }
 
-service ForgotPassword {
   rpc ForgotPassword ( ForgotPasswordRequest) returns (ForgotPasswordResponse) {
     option (google.api.http) = {
-      post: '/forgotpassword'
+      post: "/forgotpassword"
       body: "*"
     };
   }
