@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"net/smtp"
+	"os"
 	"strings"
 	"time"
 
@@ -109,7 +110,12 @@ func startHTTP() error {
 	}
 	log.Println("Listening on port 8080")
 
-	return http.ListenAndServe(":8080", mux)
+	herokuPort := os.Getenv("PORT")
+	if herokuPort == "" {
+		herokuPort = "8080"
+	}
+
+	return http.ListenAndServe(":"+herokuPort, mux)
 }
 
 // SignUp creates a new user with the input data
