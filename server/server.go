@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"flag"
 	"log"
 	"math/rand"
 	"net"
+	"net/http"
 	"net/smtp"
 	"strings"
 	"time"
@@ -13,27 +15,52 @@ import (
 	pb "github.com/UCSDIOWA/login-api/protos"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
+	"github.com/golang/glog"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 )
 
 type server struct{}
+
+type mongo struct {
+	Operation *mgo.Collection
+}
 
 // Mail struct holds info for sending reset emails
 type Mail struct {
 	From, Host, Port string
 }
 
-//Possible characters for code generator
+// Possible characters for code generator
 const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 
-type mongo struct {
-	Operation *mgo.Collection
-}
-
-// DB is a pointer to mongo struct
-var DB *mongo
+var (
+	// DB is a pointer to mongo struct
+	DB           *mongo
+	echoEndpoint = flag.String("echo_endpoint", "localhost:50052", "endpoint of login-api")
+)
 
 func main() {
+	errors := make(chan error)
+
+	go func() {
+		errors <- startGRPC()
+	}()
+
+	go func() {
+		flag.Parse()
+		defer glog.Flush()
+
+		errors <- startHTTP()
+	}()
+
+	for err := range errors {
+		log.Fatal(err)
+		return
+	}
+}
+
+func startGRPC() error {
 	// Host mongo server
 	m, err := mgo.Dial("127.0.0.1:27017")
 	if err != nil {
@@ -65,6 +92,24 @@ func main() {
 	if err := s.Serve(listen); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}
+
+	return err
+}
+
+func startHTTP() error {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithInsecure()}
+	err := pb.RegisterLoginAPIHandlerFromEndpoint(ctx, mux, *echoEndpoint, opts)
+	if err != nil {
+		return err
+	}
+	log.Println("Listening on port 8080")
+
+	return http.ListenAndServe(":8080", mux)
 }
 
 // SignUp creates a new user with the input data
