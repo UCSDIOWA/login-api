@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 	"net/http"
 
 	"github.com/golang/glog"
@@ -23,10 +24,11 @@ func run() error {
 
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
-	err := gw.RegisterSignUpHandlerFromEndpoint(ctx, mux, *echoEndpoint, opts)
+	err := gw.RegisterLoginAPIHandlerFromEndpoint(ctx, mux, *echoEndpoint, opts)
 	if err != nil {
 		return err
 	}
+	log.Println("Listening on port 8080")
 
 	return http.ListenAndServe(":8080", mux)
 }

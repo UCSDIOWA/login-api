@@ -28,7 +28,7 @@ var _ status.Status
 var _ = runtime.String
 var _ = utilities.NewDoubleArray
 
-func request_SignUp_SignUp_0(ctx context.Context, marshaler runtime.Marshaler, client SignUpClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_LoginAPI_SignUp_0(ctx context.Context, marshaler runtime.Marshaler, client LoginAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq SignUpRequest
 	var metadata runtime.ServerMetadata
 
@@ -41,9 +41,35 @@ func request_SignUp_SignUp_0(ctx context.Context, marshaler runtime.Marshaler, c
 
 }
 
-// RegisterSignUpHandlerFromEndpoint is same as RegisterSignUpHandler but
+func request_LoginAPI_LogIn_0(ctx context.Context, marshaler runtime.Marshaler, client LoginAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq LogInRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.LogIn(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func request_LoginAPI_ForgotPassword_0(ctx context.Context, marshaler runtime.Marshaler, client LoginAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ForgotPasswordRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.ForgotPassword(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+// RegisterLoginAPIHandlerFromEndpoint is same as RegisterLoginAPIHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterSignUpHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterLoginAPIHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -63,23 +89,23 @@ func RegisterSignUpHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMu
 		}()
 	}()
 
-	return RegisterSignUpHandler(ctx, mux, conn)
+	return RegisterLoginAPIHandler(ctx, mux, conn)
 }
 
-// RegisterSignUpHandler registers the http handlers for service SignUp to "mux".
+// RegisterLoginAPIHandler registers the http handlers for service LoginAPI to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterSignUpHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterSignUpHandlerClient(ctx, mux, NewSignUpClient(conn))
+func RegisterLoginAPIHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterLoginAPIHandlerClient(ctx, mux, NewLoginAPIClient(conn))
 }
 
-// RegisterSignUpHandlerClient registers the http handlers for service SignUp
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "SignUpClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "SignUpClient"
+// RegisterLoginAPIHandlerClient registers the http handlers for service LoginAPI
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "LoginAPIClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "LoginAPIClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "SignUpClient" to call the correct interceptors.
-func RegisterSignUpHandlerClient(ctx context.Context, mux *runtime.ServeMux, client SignUpClient) error {
+// "LoginAPIClient" to call the correct interceptors.
+func RegisterLoginAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux, client LoginAPIClient) error {
 
-	mux.Handle("POST", pattern_SignUp_SignUp_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_LoginAPI_SignUp_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		if cn, ok := w.(http.CloseNotifier); ok {
@@ -97,14 +123,72 @@ func RegisterSignUpHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SignUp_SignUp_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_LoginAPI_SignUp_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SignUp_SignUp_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_LoginAPI_SignUp_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_LoginAPI_LogIn_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		if cn, ok := w.(http.CloseNotifier); ok {
+			go func(done <-chan struct{}, closed <-chan bool) {
+				select {
+				case <-done:
+				case <-closed:
+					cancel()
+				}
+			}(ctx.Done(), cn.CloseNotify())
+		}
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_LoginAPI_LogIn_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_LoginAPI_LogIn_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_LoginAPI_ForgotPassword_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		if cn, ok := w.(http.CloseNotifier); ok {
+			go func(done <-chan struct{}, closed <-chan bool) {
+				select {
+				case <-done:
+				case <-closed:
+					cancel()
+				}
+			}(ctx.Done(), cn.CloseNotify())
+		}
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_LoginAPI_ForgotPassword_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_LoginAPI_ForgotPassword_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -112,9 +196,17 @@ func RegisterSignUpHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 }
 
 var (
-	pattern_SignUp_SignUp_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"signup"}, ""))
+	pattern_LoginAPI_SignUp_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"signup"}, ""))
+
+	pattern_LoginAPI_LogIn_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"login"}, ""))
+
+	pattern_LoginAPI_ForgotPassword_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"forgotpassword"}, ""))
 )
 
 var (
-	forward_SignUp_SignUp_0 = runtime.ForwardResponseMessage
+	forward_LoginAPI_SignUp_0 = runtime.ForwardResponseMessage
+
+	forward_LoginAPI_LogIn_0 = runtime.ForwardResponseMessage
+
+	forward_LoginAPI_ForgotPassword_0 = runtime.ForwardResponseMessage
 )

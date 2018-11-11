@@ -16,12 +16,27 @@ func main() {
 		log.Fatalf("Did not connect to the server: %v", err)
 	}
 	defer conn.Close()
-	c := pb.NewSignUpClient(conn)
+	c := pb.NewLoginAPIClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	response, err := c.SignUp(ctx, &pb.SignUpRequest{Email: "test@tea.com", Password: "test"})
+	signUpResp, err := c.SignUp(ctx, &pb.SignUpRequest{Email: "tea.noreply@gmail.com", Password: "password", FirstName: "Tea",
+		LastName: "Test"})
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Sign up response: ", signUpResp.Success)
 
-	log.Println(response.String())
+	logInResp, err := c.LogIn(ctx, &pb.LogInRequest{Email: "tea.noreply@gmail.com", Password: "password"})
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Login response with correct credentials: ", logInResp.Success)
+
+	logInResp, err = c.LogIn(ctx, &pb.LogInRequest{Email: "tea.noreply@gmail.com", Password: "wrongpassword"})
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Login response with wrong credentials: ", logInResp.Success)
 }
