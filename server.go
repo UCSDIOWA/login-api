@@ -122,7 +122,7 @@ func startHTTP() error {
 func (s *server) SignUp(ctx context.Context, signUpReq *pb.SignUpRequest) (*pb.SignUpResponse, error) {
 	err := DB.Operation.Insert(signUpReq)
 	if err != nil {
-		return &pb.SignUpResponse{Success: false}, err
+		return &pb.SignUpResponse{Success: false}, nil
 	}
 
 	return &pb.SignUpResponse{Success: true}, nil
@@ -134,12 +134,12 @@ func (s *server) LogIn(ctx context.Context, logInReq *pb.LogInRequest) (*pb.LogI
 	user := &pb.SignUpRequest{}
 	err := DB.Operation.Find(bson.M{"email": logInReq.Email}).One(user)
 	if err != nil {
-		return &pb.LogInResponse{Success: false}, err
+		return &pb.LogInResponse{Success: false}, nil
 	}
 
 	// Validate user password
 	if strings.Compare(user.Password, logInReq.Password) != 0 {
-		return &pb.LogInResponse{Success: false}, err
+		return &pb.LogInResponse{Success: false}, nil
 	}
 
 	return &pb.LogInResponse{Success: true}, nil
@@ -152,7 +152,7 @@ func (s *server) ForgotPassword(ctx context.Context, forgotPassReq *pb.ForgotPas
 
 	// Check if user exists
 	if err != nil || strings.Compare(user.Email, "") != 0 {
-		return &pb.ForgotPasswordResponse{Success: false}, err
+		return &pb.ForgotPasswordResponse{Success: false}, nil
 	}
 
 	code := randCode(12)
