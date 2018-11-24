@@ -120,10 +120,27 @@ func startHTTP() error {
 
 // SignUp creates a new user with the input data
 func (s *server) SignUp(ctx context.Context, signUpReq *pb.SignUpRequest) (*pb.SignUpResponse, error) {
-	err := DB.Operation.Insert(signUpReq)
+
+    code := randCode(12)
+    err := DB.Operation.Insert( &pb.UserModel{
+        Email:      signUpReq.Email,
+        Password:   signUpReq.Password,
+        FirstName:  signUpReq.FirstName,
+        LastName:   signUpReq.LastName,
+        SecretCode: &pb.SecretCode{ Value: code, Sent: true },})
+
+    //If user exists
 	if err != nil {
 		return &pb.SignUpResponse{Success: false}, nil
 	}
+
+    //Not needed for testing
+    /*//Email confirmation temp pass
+	confirmMsg := "Subject: Email Confirmation \n\nPlease use the code " +
+		code + " to confirm you password.\n"
+
+	sendCode(signUpReq.Email, confirmMsg)
+    */
 
 	return &pb.SignUpResponse{Success: true}, nil
 }
@@ -131,11 +148,18 @@ func (s *server) SignUp(ctx context.Context, signUpReq *pb.SignUpRequest) (*pb.S
 // Login verifies if the user from the login request is in the database
 func (s *server) LogIn(ctx context.Context, logInReq *pb.LogInRequest) (*pb.LogInResponse, error) {
 	// Fetching user from database
-	user := &pb.SignUpRequest{}
+	user := &pb.UserModel{}
 	err := DB.Operation.Find(bson.M{"email": logInReq.Email}).One(user)
 	if err != nil {
 		return &pb.LogInResponse{Success: false}, nil
 	}
+
+    //Check if secret code was used
+    if user.SecretCode.Sent == true {
+        if strings.Compare( user.SecretCode.Value, logInReq.Password) == 0 {
+            return &pb.LogInResponse{Success: true }, nil
+        }
+    }
 
 	// Validate user password
 	if strings.Compare(user.Password, logInReq.Password) != 0 {
