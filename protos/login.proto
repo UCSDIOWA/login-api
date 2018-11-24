@@ -32,6 +32,11 @@ message SecretCode {
     bool sent = 2;
 }
 
+message Endorsements {
+    repeated string from = 1;
+    repeated string for = 2;
+}
+
 message UserModel {
     string email = 1;
     string password = 2;
@@ -40,6 +45,7 @@ message UserModel {
     SecretCode secret_code = 5;
     repeated string current_projects =6;
     repeated string previous_projects =7;
+    Endorsements endorsements = 8;
 }
 
 message SignUpRequest {
