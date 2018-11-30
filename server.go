@@ -32,6 +32,13 @@ type Mail struct {
 	From, Host, Port string
 }
 
+type getLoginResponseStruct struct {
+	Password     string `json:"password" bson:"password"`
+	FirstName    string `json:"firstname" bson:"firstname"`
+	LastName     string `json:"lastname" bson:"lastname"`
+	ProfileImage string `json:"profileimage" bson:"profileimage"`
+}
+
 // Possible characters for code generator
 const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 
@@ -131,18 +138,23 @@ func (s *server) SignUp(ctx context.Context, signUpReq *pb.SignUpRequest) (*pb.S
 // Login verifies if the user from the login request is in the database
 func (s *server) LogIn(ctx context.Context, logInReq *pb.LogInRequest) (*pb.LogInResponse, error) {
 	// Fetching user from database
-	user := &pb.SignUpRequest{}
-	err := DB.Operation.Find(bson.M{"email": logInReq.Email}).One(user)
+	var response pb.LogInResponse
+	var responseStruct getLoginResponseStruct
+	err := DB.Operation.Find(bson.M{"email": logInReq.Email}).One(&responseStruct)
 	if err != nil {
 		return &pb.LogInResponse{Success: false}, nil
 	}
 
 	// Validate user password
-	if strings.Compare(user.Password, logInReq.Password) != 0 {
+	if strings.Compare(responseStruct.Password, logInReq.Password) != 0 {
 		return &pb.LogInResponse{Success: false}, nil
 	}
+	response.Success = true
+	response.Firstname = responseStruct.FirstName
+	response.Lastname = responseStruct.LastName
+	response.Profileimage = responseStruct.ProfileImage
 
-	return &pb.LogInResponse{Success: true}, nil
+	return &response, nil
 }
 
 func (s *server) ForgotPassword(ctx context.Context, forgotPassReq *pb.ForgotPasswordRequest) (*pb.ForgotPasswordResponse, error) {
