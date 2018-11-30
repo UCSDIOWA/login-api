@@ -30,8 +30,9 @@ service LoginAPI {
 message SignUpRequest {
   string email = 1;
   string password = 2;
-  string first_name = 3;
-  string last_name = 4;
+  string firstname = 3;
+  string lastname = 4;
+  string profileimage = 5;
 }
 
 message SignUpResponse {
@@ -45,6 +46,9 @@ message LogInRequest {
 
 message LogInResponse {
   bool success = 1;
+  string firstname = 2;
+  string lastname = 3;
+  string profileimage = 4;
 }
 
 message ForgotPasswordRequest {
