@@ -1,6 +1,11 @@
 {
 	"comment": "",
 	"ignore": "test",
-	"package": [],
+	"package": [
+		{
+			"path": "login-api",
+			"revision": ""
+		}
+	],
 	"rootPath": "github.com/UCSDIOWA/login-api"
 }

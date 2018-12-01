@@ -2,6 +2,9 @@
 	"ImportPath": "github.com/UCSDIOWA/login-api",
 	"GoVersion": "go1.11",
 	"GodepVersion": "v80",
+	"Packages": [
+		"./..."
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/globalsign/mgo",
@@ -86,6 +89,11 @@
 			"ImportPath": "github.com/grpc-ecosystem/grpc-gateway/utilities",
 			"Comment": "v1.5.1-8-gc203e72",
 			"Rev": "c203e727a7ca475c659524ed14b695d5ec6acd0c"
+		},
+		{
+			"ImportPath": "github.com/rs/cors",
+			"Comment": "v1.6.0-1-ga3460e4",
+			"Rev": "a3460e445dd310dbefee993fe449f2ff9c08ae71"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
