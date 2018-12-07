@@ -71,7 +71,7 @@ func main() {
 
 func startGRPC() error {
 	// Host mongo server
-	m, err := mgo.Dial("mongodb://tea:cse110IOWA@ds159263.mlab.com:59263/tea")
+	m, err := mgo.Dial("127.0.0.1:27017")
 	if err != nil {
 		log.Fatalf("Could not connect to the MongoDB server: %v", err)
 	}
@@ -173,13 +173,11 @@ func (s *server) ForgotPassword(ctx context.Context, forgotPassReq *pb.ForgotPas
 	err := DB.Operation.Find(bson.M{"email": forgotPassReq.Email}).One(user)
 
 	// Check if user exists
-	if err != nil || strings.Compare(user.Email, "") != 0 {
+	if err != nil {
 		return &pb.ForgotPasswordResponse{Success: false}, nil
 	}
 
-	code := randCode(12)
-	forgotMsg := "Subject: Pasword Reset Code \n\nPlease use the code " +
-		code + " to reset your account password.\n"
+	forgotMsg := "Subject: Your Tea Account Password\n\nHello!\n\nYour tea account password is: " + user.Password + "\n\nSincerely,\nTeam Tea\n"
 
 	sendCode(forgotPassReq.Email, forgotMsg)
 
@@ -265,6 +263,5 @@ func sendCode(email string, message string) error {
 	}
 
 	client.Quit()
-	log.Println("Mail sent successfully")
 	return nil
 }
