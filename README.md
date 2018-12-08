@@ -17,10 +17,10 @@ run the server.go file as follows,
 This will execute the server file.
 
 ## Endpoints ##
-Each enpoint expect to receive specific filds to process a request. The following are the expectations for each endpoint and the resopnse
+Each endpoint expects to receive specific fields to process a request. The following are the expectations for each endpoint and the response. The API link is https://tea-project-management-api.herokuapp.com/. Note that each endpoint only accepts POST requests, so the link will only display a "Not Found" message since GET requests aren't supported.
 
 | Endpoint | Request | Response |
 |:--------:|---------|----------|
-| SignUp   | string email = 1;<br>string password = 2;<br>string firstname = 3;<br>string lastname = 4;<br>string profileimage = 5; | bool success; |
-| LogIn    | string email = 1;<br>string password = 2;| bool success = 1;<br>string firstname = 2;<br>string lastname = 3;<br>string profileimage = 4; |
-| ForgotPassword | string email; | bool success; |
+| signup   | string email = 1;<br>string password = 2;<br>string firstname = 3;<br>string lastname = 4;<br>string profileimage = 5; | bool success = 1; |
+| login    | string email = 1;<br>string password = 2;| bool success = 1;<br>string firstname = 2;<br>string lastname = 3;<br>string profileimage = 4; |
+| forgotpassword | string email; | bool success = 1; |
