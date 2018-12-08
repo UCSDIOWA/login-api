@@ -22,5 +22,5 @@ Each enpoint expect to receive specific filds to process a request. The followin
 | Endpoint | Request | Response |
 |:--------:|---------|----------|
 | SignUp   | string email = 1;<br>string password = 2;<br>string firstname = 3;<br>string lastname = 4;<br>string profileimage = 5; | bool success; |
-| LogIn    | string email = 1;<br>string password = 2;| bool success = 1;<br>string firstname =2;<br>string lastname = 3;<br>string profileimage = 4; |
+| LogIn    | string email = 1;<br>string password = 2;| bool success = 1;<br>string firstname = 2;<br>string lastname = 3;<br>string profileimage = 4; |
 | ForgotPassword | string email; | bool success; |
