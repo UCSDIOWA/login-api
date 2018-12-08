@@ -20,7 +20,7 @@ This will execute the server file.
 Each enpoint expect to receive specific filds to process a request. The following are the expectations for each endpoint and the resopnse
 
 | Endpoint | Request | Response |
-|----------|---------|----------|
-| signup   | string email = 1;<br>string password = 2;<br>string firstname = 3;<br>string lastname = 4;<br>string profileimage = 5; | bool success; |
-| login    | string email = 1;<br>string password = 2;| bool success = 1;<br>string firstname =2;<br>string lastname = 3;<br>string profileimage = 4; |
-| forgotpassword | string email; | bool success; |
+|:--------:|---------|----------|
+| SignUp   | string email = 1;<br>string password = 2;<br>string firstname = 3;<br>string lastname = 4;<br>string profileimage = 5; | bool success; |
+| LogIn    | string email = 1;<br>string password = 2;| bool success = 1;<br>string firstname =2;<br>string lastname = 3;<br>string profileimage = 4; |
+| ForgotPassword | string email; | bool success; |
